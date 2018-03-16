@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+CONF='aesopia.conf'
+MODULES='aesopia_modules_init.sh'
+
+echo "Starting Pigeon installation, please type your PI password when prompted" &&
+echo "Updating..." &&
+sudo apt-get update &&
+sudo apt-get dist-upgrade &&
+echo "Installing Motion detection software" &&
+sudo apt-get install motion
+echo "Motion installation completed" &&
+sudo chmod +x aesopia_modules_init.sh &&
+sudo ./aesopia_modules_init.sh install &&
+echo -n "Please define a name for this camera (ex: backyard):"
+read camera_name
+sudo sed -i -e "/camera_name=/s/.*/camera_name=$camera_name/" $MODULES &&
+echo -n "Do you want to setup a password to access the live feed? [Y/n]:"
+read password
+if [[ $password == "y" ]] || [[ $password == "Y" ]] || [[ $password == "Yes" ]] || [[ $password == "yes" ]]
+  then
+    echo -n "Choose a login:"
+    read login
+    echo -n "Choose a password:"
+    read passwd
+    sudo sed -i -e "/stream_authentication/s/.*/stream_authentication $login:$passwd/" $CONF &&
+    sudo sed -i -e "/stream_auth_method/s/.*/stream_auth_method 1/" $CONF
+  fi
+echo -n "Do you want to setup a different port (default is 8099) for the streaming server?[Y/n]"
+read port
+if [[ $port == "y" ]] || [[ $port == "Y" ]] || [[ $port == "Yes" ]] || [[ $port == "yes" ]]
+  then
+    echo -n "Choose a port (ex: 8033):"
+    read finalport
+    sudo sed -i -e "/stream_port/s/.*/stream_port $finalport/" $CONF
+  else
+  finalport=8099
+  fi
+sudo modprobe bcm2835-v4l2 &&  
+sudo motion -c $CONF &&
+echo "=========================="
+echo "Installation completed and service started" &&
+echo "You can add the following command to your 'rc.local' file to run on startup:" &&
+echo 'motion -c /home/pi/aesopia/'$CONF
+echo "-------------------------"
+echo "You can now watch your live stream at:"
+ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' | { read ip; echo http://$ip:$finalport; }
+echo "Please report any issues to github.com/edwelldombodzvuku/AesopiaIoT" &&
+echo "=========================" &&
+exit 1
