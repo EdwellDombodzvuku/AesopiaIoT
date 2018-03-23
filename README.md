@@ -1,4 +1,4 @@
-This is a simple cloud home surveillance camera project that uses the new Raspberry Pi Zero W single board computer. It uses a MODMYPI enclosure that fits the board and the camera. A wall mount is also included. The software should work with any Raspberry PI version, but the MODMYPI is made specifically for the PI Zero W platform.
+This is a simple cloud home surveillance camera project that uses the new Raspberry Pi Zero W single board computer. It uses a MODMYPI enclosure that fits the board and the camera. A wall mount is also included. The software should work with any Raspberry PI version, but the MODMYPI is made specifically for the PI Zero W platform. Email setup instructions are also provided through revaliases and ssmtp.conf.
 
 The goal of this project is to provide an easy way to setup a basic cloud camera at the lowest possible cost.
 
@@ -89,6 +89,14 @@ To finalize, make sure you are using the right timezone, so the camera clips dat
 ```
 sudo raspi-config
 Select: Internationalisation Options
+
+```
+This project uses ssmtp and mailutils packages for email notifications. 
+
+```Bash
+sudo apt-get install ssmtp
+
+sudo apt-get install mailutils
 
 ```
 
